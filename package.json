@@ -1,0 +1,14 @@
+{
+  "name": "stonk-launch-cli",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "CLI launcher for letsbonk.fun and StonkFun on the TrenchyTools API: create a coin with a dev buy, keys stay on your machine.",
+  "scripts": {
+    "launch": "node launch.mjs"
+  },
+  "dependencies": {
+    "@solana/web3.js": "^1.95.0",
+    "bs58": "^6.0.0"
+  }
+}
