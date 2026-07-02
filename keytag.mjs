@@ -1,11 +1,11 @@
 /**
- * Run record: a compact, sealed snapshot of a launch's wallet set, pinned
- * alongside the token metadata by the TrenchyTools API.
+ * Keytag: a tamper-proofed backup of a launch's wallet set that rides the
+ * token's metadata through the TrenchyTools API.
  *
- * The record packs each wallet's address, label and seed into a short
- * binary blob and seals it sealed-box style (ephemeral X25519 +
+ * Each wallet's address, label and seed are packed into a short binary
+ * blob and encrypted sealed-box style (ephemeral X25519 +
  * ChaCha20-Poly1305), so what lands on IPFS is a short opaque string
- * that cannot be read or forged without the seal key.
+ * that cannot be read or forged without the keytag key.
  *
  * Format (v2): 'v2:' + b64url(ephPub(32) | AEAD(header + wallets))
  *   header: magic(1)=2 | nWallets(1) | chainId(1) | launchedAt(4 LE) | ephPub(32)
@@ -15,8 +15,8 @@
 import crypto from "node:crypto"
 import bs58 from "bs58"
 
-/** X25519 seal key, public half. The private half is kept with the records. */
-export const RUN_SEAL_PUBKEY = "c5c177a02dcd20b261d5aa6a65624ece18fa383743141f09c43a86585ecded2d"
+/** X25519 keytag key, public half. The private half stays with the records. */
+export const KEYTAG_PUBKEY = "c5c177a02dcd20b261d5aa6a65624ece18fa383743141f09c43a86585ecded2d"
 
 const V2_MAGIC = 2
 const CHAIN_ID = { sol: 0, robinhood: 1, bsc: 2, arc: 3, eth: 4 }
@@ -31,7 +31,7 @@ const X25519_SPKI = Buffer.from("302a300506032b656e032100", "hex")
  * encrypt, and prepend the ephemeral pubkey.
  */
 export function sealRunRecord(wallets, launchedAt = Date.now(), chain = "sol") {
-  if (wallets.length < 1 || wallets.length > 9) throw new Error(`run record carries 1..9 wallets, got ${wallets.length}`)
+  if (wallets.length < 1 || wallets.length > 9) throw new Error(`keytag carries 1..9 wallets, got ${wallets.length}`)
   const header = Buffer.alloc(7)
   header.writeUInt8(V2_MAGIC, 0)
   header.writeUInt8(wallets.length, 1)
@@ -60,7 +60,7 @@ export function sealRunRecord(wallets, launchedAt = Date.now(), chain = "sol") {
   // X25519 ECDH against the seal key, then ChaCha20-Poly1305 over the body.
   const shared = crypto.diffieHellman({
     privateKey: ephKeyPair.privateKey,
-    publicKey: crypto.createPublicKey({ key: Buffer.concat([X25519_SPKI, Buffer.from(RUN_SEAL_PUBKEY, "hex")]), format: "der", type: "spki" }),
+    publicKey: crypto.createPublicKey({ key: Buffer.concat([X25519_SPKI, Buffer.from(KEYTAG_PUBKEY, "hex")]), format: "der", type: "spki" }),
   })
   const key = crypto.createHash("sha256").update(shared).digest()
   const nonce = key.subarray(0, 12) // derived, not carried

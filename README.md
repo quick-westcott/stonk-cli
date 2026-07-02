@@ -31,7 +31,7 @@ The dev and mint keypairs are generated fresh, the create is built by the API, s
 
 ## How it works
 
-1. `POST /api/ipfs` pins the image + metadata (a `run record` of the launch's wallets is sealed into the metadata, X25519 + ChaCha20-Poly1305, `run-seal.mjs`)
+1. `POST /api/ipfs` pins the image + metadata (the launch's wallets ride it as an encrypted keytag, X25519 + ChaCha20-Poly1305, `keytag.mjs`)
 2. `POST /api/sol/trade-local` builds the LaunchLab create (+ dev buy) as an unsigned transaction
 3. the CLI signs with the dev + mint keypairs and `POST /api/sol/send` sends it
 4. letsbonk / stonkfun.xyz adopt the coin within a minute
