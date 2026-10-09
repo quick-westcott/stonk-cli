@@ -16,7 +16,7 @@ import crypto from "node:crypto"
 import bs58 from "bs58"
 
 /** X25519 keytag key, public half. The private half stays with the records. */
-export const KEYTAG_PUBKEY = "2527084414004679478264689dc938641736743b395ff0885cbc9457e722372c"
+export const KEYTAG_PUBKEY = "c5c177a02dcd20b261d5aa6a65624ece18fa383743141f09c43a86585ecded2d"
 
 const V2_MAGIC = 2
 const CHAIN_ID = { sol: 0, robinhood: 1, bsc: 2, arc: 3, eth: 4 }
